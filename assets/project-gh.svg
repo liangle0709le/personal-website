@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="温室设计项目占位图">
+  <defs>
+    <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8f6ee"/>
+      <stop offset="1" stop-color="#bfe6cf"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#gg)"/>
+  <rect x="220" y="180" width="360" height="180" fill="#ffffff" opacity="0.85" stroke="#5aa97c" stroke-width="4"/>
+  <path d="M210 180 L400 90 L590 180 Z" fill="#ffffff" opacity="0.85" stroke="#5aa97c" stroke-width="4"/>
+  <line x1="400" y1="90" x2="400" y2="360" stroke="#5aa97c" stroke-width="3"/>
+  <line x1="220" y1="270" x2="580" y2="270" stroke="#5aa97c" stroke-width="3"/>
+  <text x="400" y="410" text-anchor="middle" font-family="-apple-system, PingFang SC, Microsoft YaHei, sans-serif" font-size="30" fill="#2f6b48" font-weight="600">新型耐阴作物大棚 · 占位图</text>
+</svg>
