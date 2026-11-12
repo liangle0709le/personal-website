@@ -9,3 +9,6 @@ desktop.ini
 
 # 依赖（本项目为零依赖，保留以防后续扩展）
 node_modules/
+
+# WorkBuddy 内部数据（非网站内容，勿上传）
+.workbuddy/
