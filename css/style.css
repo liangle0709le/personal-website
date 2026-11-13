@@ -92,6 +92,10 @@ img { display: block; max-width: 100%; }
 .card__title { font-size: 1.15rem; margin-bottom: 8px; }
 .card__desc { color: var(--text-soft); font-size: .95rem; margin-bottom: 14px; }
 .card__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.card__img--contain { object-fit: contain; background: #f3f4f6; }
+.card__highlights { margin: 0 0 14px; padding-left: 18px; color: var(--text-soft); font-size: .9rem; line-height: 1.7; }
+.card__highlights li { margin-bottom: 4px; }
+.card__links { display: flex; flex-wrap: wrap; gap: 16px; }
 .card__link { color: var(--primary-dark); font-weight: 600; }
 .card__link:hover { text-decoration: underline; }
 
