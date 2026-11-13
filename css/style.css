@@ -115,6 +115,7 @@ img { display: block; max-width: 100%; }
 
 /* 技能 */
 .skills { display: flex; flex-wrap: wrap; gap: 12px; }
+.skills-text { font-size: 1.05rem; line-height: 1.9; color: var(--text-soft); }
 
 /* 联系方式 */
 .contact p { color: var(--text-soft); margin-bottom: 14px; }
