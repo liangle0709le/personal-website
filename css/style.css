@@ -39,9 +39,9 @@ img { display: block; max-width: 100%; }
 .nav.is-scrolled { box-shadow: var(--shadow); border-color: var(--border); }
 .nav__inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
 .nav__logo { font-weight: 800; font-size: 1.2rem; color: var(--primary-dark); }
-.nav__links { display: flex; gap: 22px; }
-.nav__links a { color: var(--text-soft); font-size: .95rem; transition: color .2s; }
-.nav__links a:hover, .nav__links a.active { color: var(--primary-dark); }
+.nav__links { display: flex; gap: 6px; }
+.nav__links a { color: var(--text-soft); font-size: .92rem; padding: 7px 13px; border-radius: 999px; white-space: nowrap; transition: color .2s, background .2s; }
+.nav__links a:hover, .nav__links a.active { color: #fff; background: var(--primary); }
 .nav__toggle { display: none; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; padding: 8px; }
 .nav__toggle span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: .3s; }
 .nav__toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -160,7 +160,8 @@ img { display: block; max-width: 100%; }
     max-height: 0; overflow: hidden; transition: max-height .3s ease;
   }
   .nav__links.open { max-height: 500px; }
-  .nav__links a { padding: 14px 20px; border-top: 1px solid var(--border); }
+  .nav__links a { padding: 14px 20px; border-top: 1px solid var(--border); border-radius: 0; }
+  .nav__links a:hover, .nav__links a.active { background: transparent; color: var(--primary-dark); }
   .hero__name { font-size: 1.9rem; }
   .edu-item { flex-direction: column; gap: 8px; }
   .edu-item__time { flex-basis: auto; }
