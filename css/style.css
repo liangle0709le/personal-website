@@ -114,6 +114,10 @@ img { display: block; max-width: 100%; }
 .timeline__body { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; box-shadow: var(--shadow); }
 .timeline__body h3 { font-size: 1.08rem; margin-bottom: 6px; }
 .timeline__role { color: var(--primary-dark); font-size: .9rem; margin-bottom: 8px; }
+.timeline__points { list-style: none; margin-top: 8px; }
+.timeline__points li { position: relative; padding-left: 18px; margin-bottom: 8px; color: var(--text-soft); font-size: .93rem; }
+.timeline__points li:last-child { margin-bottom: 0; }
+.timeline__points li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
 /* 技能 */
 .skills { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -142,7 +146,7 @@ img { display: block; max-width: 100%; }
     background: var(--bg); border-bottom: 1px solid var(--border);
     max-height: 0; overflow: hidden; transition: max-height .3s ease;
   }
-  .nav__links.open { max-height: 360px; }
+  .nav__links.open { max-height: 440px; }
   .nav__links a { padding: 14px 20px; border-top: 1px solid var(--border); }
   .hero__name { font-size: 1.9rem; }
   .edu-item { flex-direction: column; gap: 8px; }
