@@ -37,7 +37,7 @@ const revealObserver = new IntersectionObserver((entries) => {
 revealEls.forEach((el) => revealObserver.observe(el));
 
 // ===== 导航高亮当前区块 =====
-const sections = ['about', 'education', 'projects', 'experience', 'leadership', 'honors', 'skills', 'contact']
+const sections = ['about', 'education', 'projects', 'experience', 'honors', 'leadership', 'skills', 'contact']
   .map((id) => document.getElementById(id))
   .filter(Boolean);
 const linkMap = {};
