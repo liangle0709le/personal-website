@@ -32,8 +32,9 @@
     if (booted) return;
     booted = true;
 
-    // 多源回退，避免单一 CDN 不可用
+    // 优先本地文件（离线可用、国内网络稳定），失败再回退 CDN
     const SOURCES = [
+      './vendor/three.module.min.js',
       'https://unpkg.com/three@0.160.0/build/three.module.js',
       'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
     ];
