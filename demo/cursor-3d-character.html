@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>光标跟随 3D 角色 · 技术拆解 Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; background: #0a0b12; }
+  canvas { display: block; }
+  .hud {
+    position: fixed; left: 28px; bottom: 26px; z-index: 10;
+    color: #8b93b8; font: 400 13px/1.7 -apple-system, "PingFang SC", sans-serif;
+    pointer-events: none; letter-spacing: .02em;
+  }
+  .hud b { color: #e8ecff; font-weight: 500; }
+  .tip {
+    position: fixed; right: 28px; top: 26px; z-index: 10;
+    color: #5b628a; font: 400 12px/1.6 "SF Mono", ui-monospace, monospace;
+    text-align: right; pointer-events: none;
+  }
+  .loading {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #5b628a; font: 400 13px -apple-system, "PingFang SC", sans-serif; z-index: 20;
+    transition: opacity .6s ease;
+  }
+</style>
+</head>
+<body>
+<div class="loading" id="loading">正在加载 3D 场景…</div>
+<div class="tip">move your cursor</div>
+<div class="hud"><b>光标跟随 3D 角色</b><br />转动鼠标 · 角色头部与眼睛会追着你</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0b12, 0.055);
+
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 0.5, 6.2);
+camera.lookAt(0, 0.15, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0x8899ff, 0.55));
+
+const key = new THREE.DirectionalLight(0xffffff, 2.1);
+key.position.set(3, 5, 4);
+scene.add(key);
+
+const rimL = new THREE.PointLight(0x5b7cff, 26, 14);
+rimL.position.set(-3.4, 1.6, -2.4);
+scene.add(rimL);
+
+const rimR = new THREE.PointLight(0x9d5bff, 20, 13);
+rimR.position.set(3.6, 0.4, -2.0);
+scene.add(rimR);
+
+const fill = new THREE.PointLight(0x2ee6c0, 9, 9);
+fill.position.set(1.2, -1.6, 3.2);
+scene.add(fill);
+
+// ---------- character group ----------
+const character = new THREE.Group();
+scene.add(character);
+
+const headGroup = new THREE.Group();
+headGroup.position.y = 0.42;
+character.add(headGroup);
+
+const skinMat = new THREE.MeshPhysicalMaterial({
+  color: 0xdfe6ff, roughness: 0.42, metalness: 0.06,
+  clearcoat: 0.65, clearcoatRoughness: 0.35,
+  sheen: 0.5, sheenColor: new THREE.Color(0xaab8ff)
+});
+
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.92, 64, 48), skinMat);
+head.scale.set(1.06, 1.0, 0.96);
+headGroup.add(head);
+
+// visor plate
+const visorShape = new THREE.Mesh(
+  new THREE.SphereGeometry(0.925, 64, 48, Math.PI / 2 - 0.85, 1.7, 1.0, 0.95),
+  new THREE.MeshPhysicalMaterial({
+    color: 0x0e1224, roughness: 0.12, metalness: 0.85,
+    clearcoat: 1, clearcoatRoughness: 0.08
+  })
+);
+visorShape.scale.set(1.07, 1.01, 0.985);
+headGroup.add(visorShape);
+
+// eyes
+const eyeMat = new THREE.MeshBasicMaterial({ color: 0x7ef4ff });
+const eyeGlowMat = new THREE.MeshBasicMaterial({ color: 0x7ef4ff, transparent: true, opacity: 0.28 });
+
+const eyes = [];
+[-1, 1].forEach((s) => {
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(0.095, 32, 24), eyeMat);
+  eye.scale.set(1, 1.18, 0.55);
+  eye.position.set(0.24 * s, 0.06, 0.885);
+  headGroup.add(eye);
+  eyes.push(eye);
+
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(0.19, 24, 18), eyeGlowMat);
+  glow.position.copy(eye.position);
+  glow.position.z -= 0.01;
+  headGroup.add(glow);
+});
+
+// ears / side pods
+const podMat = new THREE.MeshPhysicalMaterial({
+  color: 0xb9c2ee, roughness: 0.35, metalness: 0.5, clearcoat: 0.8
+});
+[-1, 1].forEach((s) => {
+  const pod = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.18, 4, 16), podMat);
+  pod.position.set(0.92 * s, 0.1, 0);
+  pod.rotation.z = Math.PI / 2 * s * 0.85;
+  headGroup.add(pod);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.17, 0.022, 12, 32),
+    new THREE.MeshBasicMaterial({ color: 0x7ef4ff, transparent: true, opacity: 0.75 })
+  );
+  ring.position.set(0.98 * s, 0.1, 0);
+  ring.rotation.y = Math.PI / 2;
+  headGroup.add(ring);
+});
+
+// antenna
+const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.42, 8), podMat);
+ant.position.set(0, 1.02, 0);
+headGroup.add(ant);
+const antTip = new THREE.Mesh(
+  new THREE.SphereGeometry(0.06, 20, 16),
+  new THREE.MeshBasicMaterial({ color: 0xff8bd1 })
+);
+antTip.position.set(0, 1.26, 0);
+headGroup.add(antTip);
+
+// body
+const body = new THREE.Mesh(new THREE.SphereGeometry(0.6, 48, 36), skinMat);
+body.scale.set(1, 0.86, 0.9);
+body.position.y = -0.72;
+character.add(body);
+
+const core = new THREE.Mesh(
+  new THREE.SphereGeometry(0.17, 32, 24),
+  new THREE.MeshBasicMaterial({ color: 0x7ef4ff })
+);
+core.position.set(0, -0.66, 0.52);
+character.add(core);
+
+// floating ground ring
+const groundRing = new THREE.Mesh(
+  new THREE.TorusGeometry(1.5, 0.012, 8, 96),
+  new THREE.MeshBasicMaterial({ color: 0x4c6cff, transparent: true, opacity: 0.5 })
+);
+groundRing.rotation.x = Math.PI / 2;
+groundRing.position.y = -1.45;
+scene.add(groundRing);
+
+const groundRing2 = new THREE.Mesh(
+  new THREE.TorusGeometry(1.05, 0.008, 8, 80),
+  new THREE.MeshBasicMaterial({ color: 0x7ef4ff, transparent: true, opacity: 0.35 })
+);
+groundRing2.rotation.x = Math.PI / 2;
+groundRing2.position.y = -1.44;
+scene.add(groundRing2);
+
+// ---------- particle field ----------
+const pCount = 700;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(pCount * 3);
+for (let i = 0; i < pCount; i++) {
+  const r = 3.5 + Math.random() * 16;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  pPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+  pPos[i * 3 + 1] = r * Math.cos(phi) * 0.6;
+  pPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta) - 3;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const particles = new THREE.Points(
+  pGeo,
+  new THREE.PointsMaterial({
+    color: 0x8fa4ff, size: 0.028, transparent: true, opacity: 0.75,
+    sizeAttenuation: true, depthWrite: false
+  })
+);
+scene.add(particles);
+
+// ---------- pointer ----------
+const pointer = new THREE.Vector2(0, 0);
+const smooth = new THREE.Vector2(0, 0);
+
+function updatePointer(x, y) {
+  pointer.x = (x / innerWidth) * 2 - 1;
+  pointer.y = -(y / innerHeight) * 2 + 1;
+}
+addEventListener('pointermove', (e) => updatePointer(e.clientX, e.clientY));
+addEventListener('touchmove', (e) => {
+  if (e.touches[0]) updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+// ---------- animation ----------
+const clock = new THREE.Clock();
+const MAX_YAW = THREE.MathUtils.degToRad(34);
+const MAX_PITCH = THREE.MathUtils.degToRad(20);
+let curYaw = 0, curPitch = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  smooth.x += (pointer.x - smooth.x) * 0.055;
+  smooth.y += (pointer.y - smooth.y) * 0.055;
+
+  const targetYaw = smooth.x * MAX_YAW;
+  const targetPitch = smooth.y * MAX_PITCH;
+  curYaw += (targetYaw - curYaw) * 0.09;
+  curPitch += (targetPitch - curPitch) * 0.09;
+
+  headGroup.rotation.y = curYaw;
+  headGroup.rotation.x = -curPitch;
+
+  character.rotation.y = curYaw * 0.28;
+  character.rotation.x = -curPitch * 0.18;
+
+  eyes.forEach((eye, i) => {
+    const s = i === 0 ? -1 : 1;
+    const baseX = 0.24 * s;
+    eye.position.x = baseX + smooth.x * 0.035;
+    eye.position.y = 0.06 + smooth.y * 0.03;
+  });
+
+  character.position.y = Math.sin(t * 1.15) * 0.055;
+  headGroup.position.y = 0.42 + Math.sin(t * 1.15 + 0.5) * 0.03;
+
+  const pulse = 0.9 + Math.sin(t * 2.2) * 0.12;
+  core.scale.setScalar(pulse);
+  antTip.material.color.setHSL(0.85 + Math.sin(t * 0.6) * 0.04, 1, 0.7);
+
+  groundRing.rotation.z += 0.0022;
+  groundRing2.rotation.z -= 0.0032;
+  particles.rotation.y += 0.0004;
+
+  renderer.render(scene, camera);
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+animate();
+
+const loading = document.getElementById('loading');
+loading.style.opacity = '0';
+setTimeout(() => loading.remove(), 700);
+</script>
+</body>
+</html>
