@@ -65,72 +65,7 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
    ============================================================ */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ---------- 1. Canvas 星空粒子（缓慢上升 + 连线） ----------
-(function () {
-  const canvas = document.getElementById('starfield');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let w = 0, h = 0, dpr = 1, particles = [];
-
-  const resize = () => {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = window.innerWidth;
-    h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.min(90, Math.round((w * h) / 16000));
-    particles = Array.from({ length: count }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 1.4 + 0.4,
-      vx: (Math.random() - 0.5) * 0.16,
-      vy: -(Math.random() * 0.22 + 0.05),
-      a: Math.random() * 0.5 + 0.25,
-      hue: Math.random() > 0.5 ? '34, 211, 238' : '168, 85, 247'
-    }));
-  };
-
-  const LINK_DIST = 110;
-  const draw = () => {
-    ctx.clearRect(0, 0, w, h);
-    for (const p of particles) {
-      if (!reduceMotion) {
-        p.x += p.vx; p.y += p.vy;
-        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
-        if (p.x < -10) p.x = w + 10;
-        else if (p.x > w + 10) p.x = -10;
-      }
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${p.hue}, ${p.a})`;
-      ctx.fill();
-    }
-    // 近距离连线
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < LINK_DIST) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(34, 211, 238, ${(1 - dist / LINK_DIST) * 0.16})`;
-          ctx.lineWidth = 0.6;
-          ctx.stroke();
-        }
-      }
-    }
-    if (!reduceMotion) requestAnimationFrame(draw);
-  };
-
-  resize();
-  draw();
-  window.addEventListener('resize', () => { resize(); if (reduceMotion) draw(); });
-})();
-
-// ---------- 2. 鼠标跟随光晕 ----------
+// ---------- 1. 鼠标跟随光晕 ----------
 (function () {
   const glow = document.getElementById('cursorGlow');
   if (!glow || window.matchMedia('(pointer: coarse)').matches) return;
@@ -150,7 +85,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   if (!reduceMotion) follow();
 })();
 
-// ---------- 3. 打字机标语 ----------
+// ---------- 2. 打字机标语 ----------
 (function () {
   const el = document.querySelector('.hero__tagline');
   if (!el || reduceMotion) return;
@@ -164,7 +99,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   }, 75);
 })();
 
-// ---------- 4. 滚动进度条（并入已有 onScroll） ----------
+// ---------- 3. 滚动进度条（并入已有 onScroll） ----------
 const progressBar = document.getElementById('scrollProgress');
 const toTop = document.getElementById('toTop');
 const onScrollFx = () => {
@@ -180,7 +115,7 @@ window.addEventListener('scroll', onScrollFx, { passive: true });
 onScrollFx();
 if (toTop) toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' }));
 
-// ---------- 5. 卡片 3D 倾斜跟随鼠标 ----------
+// ---------- 4. 卡片 3D 倾斜跟随鼠标 ----------
 (function () {
   if (reduceMotion || window.matchMedia('(pointer: coarse)').matches) return;
   document.querySelectorAll('.card').forEach((card) => {
