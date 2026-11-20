@@ -175,15 +175,12 @@
               <img src="assets/project-monopoly.jpg" alt="南农滨江大富翁游戏棋盘截图" class="card__img" />
             </a>
             <div class="card__body">
-              <h3 class="card__title">南农滨江大富翁 · 联机版</h3>
-              <p class="card__desc">
-                以南京农业大学滨江校区真实地图为棋盘的原创大富翁，支持 2–4 人在线实时联机。掷骰穿行于图书馆、工学院、大豆改良中心之间，买地收租、交易盖房，把对手逼到破产。
-              </p>
+              <h3 class="card__title">南农大富翁 ｜ 独立开发 · 原生 JS + Node.js</h3>
               <ul class="card__highlights">
-                <li>原创校园地图：28 块地皮均为校内真实建筑与科研平台，结合航拍图还原齐民湖、中轴步道与红色环路。</li>
-                <li>联机与防作弊：服务器权威架构，骰点与规则判定全在服务端完成；支持房间邀请、断线托管与 AI 补位。</li>
-                <li>完整进阶规则：交易、盖房升级、抵押、拍卖齐备；8 档地价梯度与最高约 70 倍盖房倍率形成中后期爆发曲线。</li>
-                <li>零第三方依赖：纯 Web 技术从零手搓，自实现 WebSocket 协议；61 项自动化测试全部通过。</li>
+                <li>服务端权威：Node.js + WebSocket，客户端只提交操作意图，由服务端校验后广播状态，从架构上防止改客户端作弊；分享码换 Cookie 实现免注册重连与断线托管。</li>
+                <li>纯函数规则引擎：applyAction(state, action, rng) 以阶段状态机驱动回合，随机数注入使其可回放、可做确定性测试。</li>
+                <li>手写 SVG 渲染：按实物比例建模棋盘（角格 70mm、地产格 40×70mm），CSS 变量 + 运行时测量自适应缩放，一套代码适配桌面与窄屏。</li>
+                <li>工程质量：19 组脚本 / 165 项断言覆盖引擎、联机协议、断线重连、人机与道具系统，支持 AI 自动对局做回归验证。</li>
               </ul>
               <div class="card__tags">
                 <span class="tag">原生 JavaScript</span>
